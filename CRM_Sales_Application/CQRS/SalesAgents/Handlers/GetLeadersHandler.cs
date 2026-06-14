@@ -20,7 +20,7 @@ namespace CRM_Sales_Application.CQRS.SalesAgents.Handlers
         public async Task<IEnumerable<SalesAgentDto>> Handle(
             GetLeadersQuery request, CancellationToken cancellationToken)
         {
-            var agents = await _unitOfWork.SalesAgents.GetAllAsync();
+            var agents = await _unitOfWork.SalesAgents.GetAllWithIncludesAsync();
             var leaders = agents.Where(a => a.Role == "TeamLeader");
             return _mapper.Map<IEnumerable<SalesAgentDto>>(leaders);
         }

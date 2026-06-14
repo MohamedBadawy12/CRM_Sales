@@ -20,7 +20,7 @@ namespace CRM_Sales_Application.CQRS.SalesAgents.Handlers
         public async Task<IEnumerable<SalesAgentDto>> Handle(
             GetAllSalesAgentsQuery request, CancellationToken cancellationToken)
         {
-            var agents = await _unitOfWork.SalesAgents.GetAllAsync();
+            var agents = await _unitOfWork.SalesAgents.GetAllWithIncludesAsync();
             return _mapper.Map<IEnumerable<SalesAgentDto>>(agents);
         }
     }
