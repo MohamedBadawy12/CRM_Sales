@@ -17,6 +17,9 @@ namespace CRM_Sales_Infrastructure.Repositories
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
+            => await _dbSet.Where(x => !x.IsDeleted).AsNoTracking().ToListAsync();
+
+        public virtual async Task<IEnumerable<T>> GetAllWithIncludesAsync()
             => await _dbSet.Where(x => !x.IsDeleted).ToListAsync();
 
         public async Task<T?> GetByIdAsync(Guid id)
