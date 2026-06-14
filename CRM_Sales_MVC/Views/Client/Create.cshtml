@@ -1,0 +1,177 @@
+﻿@model CRM_Sales_Application.DTOs.CreateClientDto
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Add Client";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="form-card">
+            <div class="content-card-header">
+                <span class="content-card-title">
+                    <i class="bi bi-person-plus me-2" style="color:#e94560;"></i>
+                    Add New Client
+                </span>
+                <a asp-action="Index" class="btn-edit">
+                    <i class="bi bi-arrow-right"></i> Back
+                </a>
+            </div>
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="ClientName" class="form-label">Client Name</label>
+                    <input asp-for="ClientName" class="form-control"
+                           placeholder="Enter client name" />
+                    <span asp-validation-for="ClientName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Phone" class="form-label">Phone Number</label>
+                    <input asp-for="Phone" class="form-control"
+                           placeholder="Enter phone number" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProjectId" class="form-label">Project</label>
+                    <select asp-for="ProjectId" class="form-select">
+                        <option value="">-- Select Project --</option>
+                        @foreach (var project in ViewBag.Projects)
+                        {
+                            <option value="@project.Id">@project.ProjectName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ProjectId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Type" class="form-label">Client Type</label>
+                    <select asp-for="Type" class="form-select" id="typeSelect"
+                            onchange="handleTypeChange()">
+                        <option value="">-- Select Type --</option>
+                        <option value="Walk">Walk-in</option>
+                        <option value="Follow">Follow-up</option>
+                    </select>
+                    <span asp-validation-for="Type" class="text-danger small"></span>
+                </div>
+
+                <!-- Team Leader Dropdown -->
+                <div class="mb-3">
+                    <label class="form-label">Team Leader</label>
+                    <select class="form-select" id="leaderSelect"
+                            onchange="loadAgents(this.value)">
+                        <option value="">-- Select Team Leader --</option>
+                        @foreach (var leader in ViewBag.Leaders)
+                        {
+                            var isSelected = leader.Id.ToString() == ViewBag.LastLeaderId;
+                            <option value="@leader.Id" selected="@isSelected">
+                                @leader.AgentName
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Sales Agent Dropdown -->
+                <div class="mb-3">
+                    <label asp-for="AgentId" class="form-label">Sales Agent</label>
+                    <select asp-for="AgentId" class="form-select" id="agentSelect">
+                        <option value="">-- Select Agent --</option>
+                    </select>
+                    <span asp-validation-for="AgentId" class="text-danger small"></span>
+                </div>
+
+                <!-- Previous Agent - كل الـ Agents -->
+                <div class="mb-4" id="prevAgentDiv" style="display:none;">
+                    <label asp-for="PreviousAgentId" class="form-label">
+                        Previous Agent
+                        <span class="text-muted small">(who was following this client before)</span>
+                    </label>
+                    <select asp-for="PreviousAgentId" class="form-select">
+                        <option value="">-- Select Previous Agent --</option>
+                        @foreach (var agent in ViewBag.AllAgents)  @* ✅ كل الـ agents *@
+                        {
+                            <option value="@agent.Id">@agent.AgentName</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary-custom w-100">
+                    <i class="bi bi-check-lg me-2"></i> Save Client
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const lastAgentId = '@ViewBag.LastAgentId';
+        const lastLeaderId = '@ViewBag.LastLeaderId';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (lastLeaderId) {
+                loadAgents(lastLeaderId);
+            }
+            handleTypeChange();
+        });
+
+        function handleTypeChange() {
+            const type = document.getElementById('typeSelect').value;
+            const prevDiv = document.getElementById('prevAgentDiv');
+            prevDiv.style.display = type === 'Follow' ? 'block' : 'none';
+        }
+
+        function loadAgents(leaderId) {
+            const agentSelect = document.getElementById('agentSelect');
+            agentSelect.innerHTML = '<option value="">-- Select Agent --</option>';
+
+            if (!leaderId) return;
+
+            $.ajax({
+                url: '/SalesAgent/GetByLeader',
+                type: 'GET',
+                data: { leaderId: leaderId },
+                success: function(data) {
+                    $.ajax({
+                        url: '/SalesAgent/GetLeaders',
+                        success: function(leaders) {
+                            const leader = leaders.find(l => l.id === leaderId);
+                            if (leader) {
+                                const isLast = leader.id === lastAgentId;
+                                agentSelect.innerHTML +=
+                                    `<option value="${leader.id}"
+                                        ${isLast ? '' : ''}>
+                                        ${leader.agentName} (Leader)
+                                    </option>`;
+                            }
+                            data.forEach(function(agent) {
+                                agentSelect.innerHTML +=
+                                    `<option value="${agent.id}">
+                                        ${agent.agentName}
+                                    </option>`;
+                            });
+
+                            if (lastAgentId) {
+                                moveLastAgentToBottom(lastAgentId);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function moveLastAgentToBottom(agentId) {
+            const agentSelect = document.getElementById('agentSelect');
+            const options = Array.from(agentSelect.options);
+            const lastOption = options.find(o => o.value === agentId);
+
+            if (lastOption) {
+                agentSelect.removeChild(lastOption);
+                lastOption.text += ' ⟵ Last Used';
+                agentSelect.appendChild(lastOption);
+            }
+        }
+    </script>
+}

@@ -1,0 +1,222 @@
+﻿@model IEnumerable<CRM_Sales_Application.DTOs.ClientDto>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Clients";
+    int pageSize = 10;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div class="content-card">
+    <div class="content-card-header">
+        <span class="content-card-title">
+            <i class="bi bi-person-lines-fill me-2" style="color:var(--accent);"></i>
+            Clients
+        </span>
+        <a asp-action="Create" class="btn-primary-custom">
+            <i class="bi bi-plus-lg"></i> Add Client
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success-custom">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        </div>
+    }
+
+    <!-- Filter + Search -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+        <div class="filter-tabs mb-0">
+            <a asp-action="Index" asp-route-type="All"
+               asp-route-search="@ViewBag.Search"
+               asp-route-month="@ViewBag.Month"
+               asp-route-year="@ViewBag.Year"
+               class="filter-tab @(ViewBag.CurrentFilter == "All" ? "active" : "")">
+                <i class="bi bi-grid me-1"></i> All (@ViewBag.TotalAll)
+            </a>
+            <a asp-action="Index" asp-route-type="Walk"
+               asp-route-search="@ViewBag.Search"
+               asp-route-month="@ViewBag.Month"
+               asp-route-year="@ViewBag.Year"
+               class="filter-tab @(ViewBag.CurrentFilter == "Walk" ? "active" : "")">
+                <i class="bi bi-person-walking me-1"></i> Walk-in (@ViewBag.TotalWalk)
+            </a>
+            <a asp-action="Index" asp-route-type="Follow"
+               asp-route-search="@ViewBag.Search"
+               asp-route-month="@ViewBag.Month"
+               asp-route-year="@ViewBag.Year"
+               class="filter-tab @(ViewBag.CurrentFilter == "Follow" ? "active" : "")">
+                <i class="bi bi-arrow-repeat me-1"></i> Follow-up (@ViewBag.TotalFollow)
+            </a>
+        </div>
+
+        <!-- Search + Date Filter -->
+        <form asp-action="Index" method="get">
+            <input type="hidden" name="type" value="@ViewBag.CurrentFilter" />
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+
+                <!-- Text Search -->
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="search" value="@ViewBag.Search"
+                           placeholder="Search clients..." class="form-control" />
+                </div>
+
+                <!-- Month -->
+                <select name="month" class="form-select" style="width:140px;">
+                    <option value="">All Months</option>
+                    @{
+                        var currentMonth = ViewBag.Month as int?;
+                        for (int m = 1; m <= 12; m++)
+                        {
+                            var monthName = System.Globalization.CultureInfo
+                            .CurrentCulture.DateTimeFormat.GetMonthName(m);
+                            var isMonthSelected = currentMonth.HasValue && currentMonth.Value == m;
+                            <option value="@m" selected="@isMonthSelected">@monthName</option>
+                        }
+                    }
+                </select>
+
+                <!-- Year -->
+                <select name="year" class="form-select" style="width:110px;">
+                    <option value="">All Years</option>
+                    @{
+                        var currentYear = ViewBag.Year as int?;
+                        for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 5; y--)
+                        {
+                            var isYearSelected = currentYear.HasValue && currentYear.Value == y;
+                            <option value="@y" selected="@isYearSelected">@y</option>
+                        }
+                    }
+                </select>
+
+                <button type="submit" class="btn-primary-custom">
+                    <i class="bi bi-search me-1"></i> Search
+                </button>
+
+                @if (!string.IsNullOrEmpty(ViewBag.Search as string) ||
+                     ViewBag.Month != null || ViewBag.Year != null)
+                {
+                    <a asp-action="Index"
+                       asp-route-type="@ViewBag.CurrentFilter"
+                       class="btn-edit">
+                        <i class="bi bi-x-circle me-1"></i> Clear
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Client Name</th>
+                    <th>Phone</th>
+                    <th>Project</th>
+                    <th>Type</th>
+                    <th>Sales Agent</th>
+                    <th>Previous Agent</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            No clients found
+                        </td>
+                    </tr>
+                }
+                @{
+                    int i = ((currentPage - 1) * pageSize) + 1;
+                }
+                @foreach (var client in Model)
+                {
+                    <tr>
+                        <td>@(i++)</td>
+                        <td><strong>@client.ClientName</strong></td>
+                        <td>@client.Phone</td>
+                        <td>@client.ProjectName</td>
+                        <td>
+                            @if (client.Type == "Walk")
+                            {
+                                <span class="badge-walk">
+                                    <i class="bi bi-person-walking me-1"></i>Walk-in
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-follow">
+                                    <i class="bi bi-arrow-repeat me-1"></i>Follow-up
+                                </span>
+                            }
+                        </td>
+                        <td>@client.AgentName</td>
+                        <td>@(client.PreviousAgentName ?? "-")</td>
+                        <td>@client.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@client.Id"
+                               class="btn-edit me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@client.Id"
+                                  method="post" style="display:inline"
+                                  id="delete-@client.Id">
+                                @Html.AntiForgeryToken()
+                                <button type="button" class="btn-delete"
+                                        onclick="confirmDelete('delete-@client.Id')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <span class="text-muted" style="font-size:13px;">
+                Page @currentPage of @totalPages
+            </span>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-page="@(currentPage - 1)"
+                           asp-route-type="@ViewBag.CurrentFilter"
+                           asp-route-search="@ViewBag.Search">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        <li class="page-item @(p == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-page="@p"
+                               asp-route-type="@ViewBag.CurrentFilter"
+                               asp-route-search="@ViewBag.Search">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-page="@(currentPage + 1)"
+                           asp-route-type="@ViewBag.CurrentFilter"
+                           asp-route-search="@ViewBag.Search">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
