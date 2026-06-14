@@ -1,0 +1,47 @@
+﻿@model CRM_Sales_Application.DTOs.CreateTeamDto
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Add Team";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="form-card">
+            <div class="content-card-header">
+                <span class="content-card-title">
+                    <i class="bi bi-people me-2" style="color:#e94560;"></i> Add New Team
+                </span>
+                <a asp-action="Index" class="btn-edit">
+                    <i class="bi bi-arrow-right"></i> Back
+                </a>
+            </div>
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="TeamName" class="form-label">Team Name</label>
+                    <input asp-for="TeamName" class="form-control"
+                           placeholder="Enter team name" />
+                    <span asp-validation-for="TeamName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Floor" class="form-label">Floor</label>
+                    <select asp-for="Floor" class="form-select">
+                        <option value="">-- Select Floor --</option>
+                        @foreach (var floor in ViewBag.Floors)
+                        {
+                            <option value="@floor.Value">@floor.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Floor" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn-primary-custom w-100">
+                    <i class="bi bi-check-lg me-2"></i> Save Team
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+﻿@model IEnumerable<CRM_Sales_Application.DTOs.TeamDto>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Teams";
+}
+
+<div class="content-card">
+    <div class="content-card-header">
+        <span class="content-card-title">
+            <i class="bi bi-people me-2" style="color: #e94560;"></i> Teams
+        </span>
+        <a asp-action="Create" class="btn-primary-custom">
+            <i class="bi bi-plus-lg"></i> Add Team
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success-custom">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Team Name</th>
+                    <th>Floor</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            No teams found
+                        </td>
+                    </tr>
+                }
+                @{
+                    int i = 1;
+                }
+                @foreach (var team in Model)
+                {
+                    <tr>
+                        <td>@(i++)</td>
+                        <td><strong>@team.TeamName</strong></td>
+                        <td>
+                            <span class="badge-floor">@team.Floor</span>
+                        </td>
+                        <td>@team.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@team.Id"
+                               class="btn-edit me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@team.Id"
+                                  method="post" style="display:inline"
+                                  id="delete-@team.Id">
+                                @Html.AntiForgeryToken()
+                                <button type="button" class="btn-delete"
+                                        onclick="confirmDelete('delete-@team.Id')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
