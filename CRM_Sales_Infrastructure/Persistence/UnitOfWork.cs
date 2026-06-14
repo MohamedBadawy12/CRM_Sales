@@ -18,9 +18,9 @@ namespace CRM_Sales_Infrastructure.Persistence
         {
             _context = context;
             Teams = new GenericRepository<Team>(_context);
-            SalesAgents = new GenericRepository<SalesAgent>(_context);
+            SalesAgents = new SalesAgentRepository(_context);
             Projects = new GenericRepository<Project>(_context);
-            Clients = new GenericRepository<Client>(_context);
+            Clients = new ClientRepository(_context);
         }
 
         public async Task<int> SaveChangesAsync()
