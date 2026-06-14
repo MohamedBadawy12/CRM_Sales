@@ -1,0 +1,49 @@
+﻿@model CRM_Sales_Application.DTOs.CreateProjectDto
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Add Project";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="form-card">
+            <div class="content-card-header">
+                <span class="content-card-title">
+                    <i class="bi bi-building me-2" style="color:#e94560;"></i> Add New Project
+                </span>
+                <a asp-action="Index" class="btn-edit">
+                    <i class="bi bi-arrow-right"></i> Back
+                </a>
+            </div>
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="ProjectName" class="form-label">Project Name</label>
+                    <input asp-for="ProjectName" class="form-control"
+                           placeholder="Enter project name" />
+                    <span asp-validation-for="ProjectName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Location" class="form-label">Location</label>
+                    <input asp-for="Location" class="form-control"
+                           placeholder="Enter location" />
+                    <span asp-validation-for="Location" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Area" class="form-label">Area</label>
+                    <input asp-for="Area" class="form-control"
+                           placeholder="e.g. 150 sqm" />
+                    <span asp-validation-for="Area" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn-primary-custom w-100">
+                    <i class="bi bi-check-lg me-2"></i> Save Project
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+﻿@model IEnumerable<CRM_Sales_Application.DTOs.ProjectDto>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Projects";
+}
+
+<div class="content-card">
+    <div class="content-card-header">
+        <span class="content-card-title">
+            <i class="bi bi-building me-2" style="color:#e94560;"></i> Projects
+        </span>
+        <a asp-action="Create" class="btn-primary-custom">
+            <i class="bi bi-plus-lg"></i> Add Project
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success-custom">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Project Name</th>
+                    <th>Location</th>
+                    <th>Area</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            No projects found
+                        </td>
+                    </tr>
+                }
+                @{
+                    int i = 1;
+                }
+                @foreach (var project in Model)
+                {
+                    <tr>
+                        <td>@(i++)</td>
+                        <td><strong>@project.ProjectName</strong></td>
+                        <td>@project.Location</td>
+                        <td>@project.Area</td>
+                        <td>@project.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@project.Id"
+                               class="btn-edit me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@project.Id"
+                                  method="post" style="display:inline"
+                                  id="delete-@project.Id">
+                                @Html.AntiForgeryToken()
+                                <button type="button" class="btn-delete"
+                                        onclick="confirmDelete('delete-@project.Id')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
