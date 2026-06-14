@@ -1,9 +1,10 @@
 ﻿using CRM_Sales_Core.Entites;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_Sales_Infrastructure.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -14,6 +15,8 @@ namespace CRM_Sales_Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // SalesAgent Self Reference
             modelBuilder.Entity<SalesAgent>()
                 .HasOne(a => a.Leader)
@@ -41,6 +44,7 @@ namespace CRM_Sales_Infrastructure.Data
                 .HasForeignKey(c => c.PreviousAgentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Floor as String
             modelBuilder.Entity<Team>()
                 .Property(t => t.Floor)
                 .HasConversion<string>();
