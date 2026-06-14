@@ -1,0 +1,136 @@
+﻿@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Today's Stats -->
+<div class="d-flex align-items-center mb-3 gap-2">
+    <i class="bi bi-calendar-check" style="color: var(--accent); font-size:18px;"></i>
+    <span style="font-weight:600; color:#444;">
+        Today — @DateTime.Now.ToString("dddd, MMMM dd yyyy")
+    </span>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Total Clients -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(26,115,232,0.1);color:var(--accent);">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-value">@ViewBag.TotalClients</div>
+            <div class="stat-label">Total Clients</div>
+            <div class="stat-sublabel">
+                <i class="bi bi-clock me-1"></i>
+                Today: @ViewBag.TodayTotal Clients
+            </div>
+        </div>
+    </div>
+
+    <!-- Walk-in -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(52,199,89,0.1);color:#34c759;">
+                <i class="bi bi-person-check-fill"></i>
+            </div>
+            <div class="stat-value">@ViewBag.WalkClients</div>
+            <div class="stat-label">Walk-in Clients</div>
+            <div class="stat-sublabel">
+                <i class="bi bi-clock me-1"></i>
+                Today: @ViewBag.TodayWalk New
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow-up -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(255,149,0,0.1);color:#ff9500;">
+                <i class="bi bi-arrow-repeat"></i>
+            </div>
+            <div class="stat-value">@ViewBag.FollowClients</div>
+            <div class="stat-label">Follow-up Clients</div>
+            <div class="stat-sublabel">
+                <i class="bi bi-clock me-1"></i>
+                Today: @ViewBag.TodayFollow Follow
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(88,86,214,0.1);color:#5856d6;">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="stat-value">@ViewBag.TotalProjects</div>
+            <div class="stat-label">Projects</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Clients Table -->
+<div class="content-card">
+    <div class="content-card-header">
+        <span class="content-card-title">
+            <i class="bi bi-clock-history me-2" style="color:var(--accent);"></i>
+            Last Added Clients
+        </span>
+        <a href="/Client/Create" class="btn-primary-custom">
+            <i class="bi bi-plus-lg"></i> Add Client
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Client Name</th>
+                    <th>Phone</th>
+                    <th>Project</th>
+                    <th>Type</th>
+                    <th>Sales Agent</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.RecentClients != null)
+                {
+                    foreach (var client in ViewBag.RecentClients)
+                    {
+                        <tr>
+                            <td><strong>@client.ClientName</strong></td>
+                            <td>@client.Phone</td>
+                            <td>@client.ProjectName</td>
+                            <td>
+                                @if (client.Type == "Walk")
+                                {
+                                    <span class="badge-walk">
+                                        <i class="bi bi-person-walking me-1"></i>Walk-in
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-follow">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Follow-up
+                                    </span>
+                                }
+                            </td>
+                            <td>@client.AgentName</td>
+                            <td>@client.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            No clients yet
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
