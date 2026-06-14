@@ -1,0 +1,97 @@
+﻿@model CRM_Sales_Application.DTOs.CreateSalesAgentDto
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Add Sales Agent";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="form-card">
+            <div class="content-card-header">
+                <span class="content-card-title">
+                    <i class="bi bi-person-badge me-2" style="color:#e94560;"></i>
+                    Add New Sales Agent
+                </span>
+                <a asp-action="Index" class="btn-edit">
+                    <i class="bi bi-arrow-right"></i> Back
+                </a>
+            </div>
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="AgentName" class="form-label">Agent Name</label>
+                    <input asp-for="AgentName" class="form-control"
+                           placeholder="Enter agent name" />
+                    <span asp-validation-for="AgentName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Role" class="form-label">Role</label>
+                    <select asp-for="Role" class="form-select" id="roleSelect"
+                            onchange="handleRoleChange()">
+                        <option value="">-- Select Role --</option>
+                        <option value="TeamLeader">Team Leader</option>
+                        <option value="Agent">Agent</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TeamId" class="form-label">Team</label>
+                    <select asp-for="TeamId" class="form-select">
+                        <option value="">-- Select Team --</option>
+                        @foreach (var team in ViewBag.Teams)
+                        {
+                            <option value="@team.Id">@team.TeamName (@team.Floor)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TeamId" class="text-danger small"></span>
+                </div>
+
+                <!-- Leader Dropdown - يظهر بس لو Role = Agent -->
+                <div class="mb-4" id="leaderDiv" style="display:none;">
+                    <label asp-for="LeaderId" class="form-label">Team Leader</label>
+                    <select asp-for="LeaderId" class="form-select" id="leaderSelect">
+                        <option value="">-- Select Team Leader --</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary-custom w-100">
+                    <i class="bi bi-check-lg me-2"></i> Save Agent
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function handleRoleChange() {
+            const role = document.getElementById('roleSelect').value;
+            const leaderDiv = document.getElementById('leaderDiv');
+            const leaderSelect = document.getElementById('leaderSelect');
+
+            if (role === 'Agent') {
+                leaderDiv.style.display = 'block';
+                // Load leaders via AJAX
+                $.ajax({
+                    url: '/SalesAgent/GetLeaders',
+                    type: 'GET',
+                    success: function (data) {
+                        leaderSelect.innerHTML = '<option value="">-- Select Team Leader --</option>';
+                        data.forEach(function (leader) {
+                            leaderSelect.innerHTML +=
+                                `<option value="${leader.id}">${leader.agentName}</option>`;
+                        });
+                    }
+                });
+            } else {
+                leaderDiv.style.display = 'none';
+                leaderSelect.innerHTML = '<option value="">-- Select Team Leader --</option>';
+                leaderSelect.value = '';
+            }
+        }
+    </script>
+}

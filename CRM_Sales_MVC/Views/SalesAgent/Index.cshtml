@@ -1,0 +1,158 @@
+﻿@model IEnumerable<CRM_Sales_Application.DTOs.SalesAgentDto>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Sales Agents";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div class="content-card">
+    <div class="content-card-header">
+        <span class="content-card-title">
+            <i class="bi bi-person-badge me-2" style="color:var(--accent);"></i>
+            Sales Agents
+            <span style="color:#aaa; font-size:13px; font-weight:400;">
+                (@ViewBag.TotalCount total)
+            </span>
+        </span>
+        <a asp-action="Create" class="btn-primary-custom">
+            <i class="bi bi-plus-lg"></i> Add Agent
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success-custom">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        </div>
+    }
+
+    <!-- Search -->
+    <form asp-action="Index" method="get" class="mb-4">
+        <div class="d-flex gap-2">
+            <div class="search-box flex-grow-1">
+                <i class="bi bi-search"></i>
+                <input type="text" name="search" value="@ViewBag.Search"
+                       placeholder="Search by name, team, role..."
+                       class="form-control" />
+            </div>
+            <button type="submit" class="btn-primary-custom">
+                <i class="bi bi-search me-1"></i> Search
+            </button>
+            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            {
+                <a asp-action="Index" class="btn-edit">
+                    <i class="bi bi-x-circle me-1"></i> Clear
+                </a>
+            }
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Agent Name</th>
+                    <th>Role</th>
+                    <th>Team</th>
+                    <th>Team Leader</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            No agents found
+                        </td>
+                    </tr>
+                }
+                @{
+                    int i = ((currentPage - 1) * 10) + 1;
+                }
+                @foreach (var agent in Model)
+                {
+                    <tr>
+                        <td>@(i++)</td>
+                        <td><strong>@agent.AgentName</strong></td>
+                        <td>
+                            @if (agent.Role == "TeamLeader")
+                            {
+                                <span class="badge-leader">
+                                    <i class="bi bi-star-fill me-1"></i> Team Leader
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-agent">
+                                    <i class="bi bi-person me-1"></i> Agent
+                                </span>
+                            }
+                        </td>
+                        <td>@(agent.TeamName ?? "-")</td>
+                        <td>@(agent.LeaderName ?? "-")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@agent.Id"
+                               class="btn-edit me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@agent.Id"
+                                  method="post" style="display:inline"
+                                  id="delete-@agent.Id">
+                                @Html.AntiForgeryToken()
+                                <button type="button" class="btn-delete"
+                                        onclick="confirmDelete('delete-@agent.Id')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <span class="text-muted" style="font-size:13px;">
+                Page @currentPage of @totalPages
+                (@ViewBag.TotalCount agents)
+            </span>
+            <nav>
+                <ul class="pagination mb-0">
+                    <!-- Previous -->
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-page="@(currentPage - 1)"
+                           asp-route-search="@ViewBag.Search">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        <li class="page-item @(p == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-page="@p"
+                               asp-route-search="@ViewBag.Search">@p</a>
+                        </li>
+                    }
+
+                    <!-- Next -->
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-page="@(currentPage + 1)"
+                           asp-route-search="@ViewBag.Search">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
