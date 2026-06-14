@@ -1,0 +1,509 @@
+﻿* {
+    font-family: 'Inter', sans-serif;
+}
+
+:root {
+    --sidebar-width: 260px;
+    --sidebar-bg: #1a1a2e;
+    --accent: #1a73e8;
+    --accent-dark: #1557b0;
+    --topbar-height: 65px;
+    --body-bg: #f0f2f5;
+}
+
+body {
+    background: var(--body-bg);
+    overflow-x: hidden;
+}
+
+/* ===== Sidebar - LEFT ===== */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    position: fixed;
+    left: 0; /* ✅ شمال */
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-logo {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-logo-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+    .sidebar-logo-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+.sidebar-logo-text {
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.2;
+}
+
+    .sidebar-logo-text span {
+        display: block;
+        color: rgba(255,255,255,0.4);
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+.sidebar-section {
+    padding: 20px 15px 5px;
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    border-radius: 10px;
+    margin: 2px 10px;
+    transition: all 0.2s;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .sidebar-item:hover {
+        background: rgba(255,255,255,0.07);
+        color: white;
+    }
+
+    .sidebar-item.active {
+        background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        color: white;
+        box-shadow: 0 5px 15px rgba(26,115,232,0.3);
+    }
+
+    .sidebar-item i {
+        font-size: 18px;
+        width: 22px;
+        text-align: center;
+    }
+
+.sidebar-logout {
+    margin-top: auto;
+    padding: 15px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ===== Topbar ===== */
+.topbar {
+    height: var(--topbar-height);
+    background: white;
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width); /* ✅ بعد الـ sidebar */
+    right: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.topbar-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: #1a1a2e;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.topbar-avatar {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.topbar-username {
+    font-size: 14px;
+    color: #666;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+    margin-left: var(--sidebar-width); /* ✅ شمال */
+    margin-top: var(--topbar-height);
+    padding: 25px;
+    min-height: calc(100vh - var(--topbar-height));
+}
+
+/* ===== Stat Cards ===== */
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    height: 100%;
+}
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1;
+}
+
+.stat-label {
+    color: #888;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.stat-sublabel {
+    color: #aaa;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+/* ===== Content Card ===== */
+.content-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+}
+
+.content-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.content-card-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: #1a1a2e;
+}
+
+/* ===== Search ===== */
+.search-box {
+    position: relative;
+    min-width: 220px;
+}
+
+    .search-box input {
+        padding-left: 38px;
+        border-radius: 10px;
+        border: 2px solid #eee;
+        font-size: 14px;
+        transition: all 0.2s;
+        width: 100%;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+            outline: none;
+        }
+
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+        pointer-events: none;
+    }
+
+/* ===== Table ===== */
+.table th {
+    background: #f8f9fa;
+    color: #666;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    padding: 12px 15px;
+}
+
+.table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-color: #f0f0f0;
+    font-size: 14px;
+}
+
+.table tbody tr:hover {
+    background: #fafafa;
+}
+
+/* ===== Badges ===== */
+.badge-walk {
+    background: rgba(52,199,89,0.15);
+    color: #34c759;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-follow {
+    background: rgba(255,149,0,0.15);
+    color: #ff9500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-leader {
+    background: rgba(26,115,232,0.12);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-agent {
+    background: rgba(88,86,214,0.12);
+    color: #5856d6;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-floor {
+    background: rgba(26,115,232,0.12);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* ===== Buttons ===== */
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .btn-primary-custom:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(26,115,232,0.3);
+        color: white;
+    }
+
+.btn-edit {
+    background: rgba(26,115,232,0.1);
+    color: var(--accent);
+    border: none;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 13px;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    .btn-edit:hover {
+        background: rgba(26,115,232,0.2);
+        color: var(--accent);
+    }
+
+.btn-delete {
+    background: rgba(220,53,69,0.1);
+    color: #dc3545;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 13px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    .btn-delete:hover {
+        background: rgba(220,53,69,0.2);
+        color: #dc3545;
+    }
+
+/* ===== Filter Tabs ===== */
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    padding: 7px 20px;
+    border-radius: 20px;
+    border: 2px solid #eee;
+    background: white;
+    color: #666;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+    .filter-tab:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .filter-tab.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+    }
+
+/* ===== Form ===== */
+.form-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #444;
+    font-size: 14px;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #eee;
+    padding: 10px 15px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+    }
+
+/* ===== Alerts ===== */
+.alert-success-custom {
+    background: rgba(52,199,89,0.12);
+    border: 1px solid rgba(52,199,89,0.3);
+    color: #34c759;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* ===== Pagination ===== */
+.pagination .page-link {
+    border-radius: 8px;
+    margin: 0 2px;
+    color: var(--accent);
+    border: 2px solid #eee;
+    font-size: 13px;
+    padding: 6px 12px;
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background: rgba(26,115,232,0.1);
+    border-color: var(--accent);
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+        /* ✅ شمال */
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+    .topbar {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .topbar-username {
+        display: none;
+    }
+}
