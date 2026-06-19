@@ -61,6 +61,8 @@ namespace CRM_Sales_MVC.Controllers
 
             var filteredList = filtered.OrderByDescending(c => c.CreatedAt).ToList();
 
+            var nextTeamInfo = await _mediator.Send(new GetNextTeamInSequenceQuery());
+
             // Pagination
             int totalCount = filteredList.Count;
             int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -75,6 +77,7 @@ namespace CRM_Sales_MVC.Controllers
             ViewBag.TotalAll = allList.Count;
             ViewBag.TotalWalk = allList.Count(c => c.Type == "Walk");
             ViewBag.TotalFollow = allList.Count(c => c.Type == "Follow");
+            ViewBag.NextTeamInfo = nextTeamInfo;
 
             return View(paged);
         }
@@ -87,10 +90,22 @@ namespace CRM_Sales_MVC.Controllers
 
             var lastAgentId = HttpContext.Session.GetString("LastAgentId");
 
+            var nextTeamInfo = await _mediator.Send(new GetNextTeamInSequenceQuery());
+
+            Guid? suggestedLeaderId = null;
+            if (nextTeamInfo.HasData && nextTeamInfo.NextTeamId.HasValue)
+            {
+                var leaderOfNextTeam = leaders.FirstOrDefault(
+                    l => l.TeamId == nextTeamInfo.NextTeamId.Value);
+                suggestedLeaderId = leaderOfNextTeam?.Id;
+            }
+
             ViewBag.Projects = projects;
             ViewBag.Leaders = leaders;
             ViewBag.AllAgents = allAgents;
             ViewBag.LastAgentId = lastAgentId;
+            ViewBag.NextTeamInfo = nextTeamInfo;
+            ViewBag.SuggestedLeaderId = suggestedLeaderId;
 
             return View();
         }

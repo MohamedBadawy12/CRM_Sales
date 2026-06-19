@@ -63,12 +63,15 @@
                     <select class="form-select" id="leaderSelect"
                             onchange="loadAgents(this.value)">
                         <option value="">-- Select Team Leader --</option>
-                        @foreach (var leader in ViewBag.Leaders)
-                        {
-                            var isSelected = leader.Id.ToString() == ViewBag.LastLeaderId;
-                            <option value="@leader.Id" selected="@isSelected">
-                                @leader.AgentName
-                            </option>
+                        @{
+                            Guid? suggestedId = ViewBag.SuggestedLeaderId;
+                            foreach (var leader in ViewBag.Leaders)
+                            {
+                                bool isSuggested = suggestedId.HasValue && leader.Id == suggestedId.Value;
+                                <option value="@leader.Id" selected="@isSuggested">
+                                    @leader.AgentName @(isSuggested ? "⭐ (Next in turn)" : "")
+                                </option>
+                            }
                         }
                     </select>
                 </div>
@@ -82,7 +85,6 @@
                     <span asp-validation-for="AgentId" class="text-danger small"></span>
                 </div>
 
-                <!-- Previous Agent - كل الـ Agents -->
                 <div class="mb-4" id="prevAgentDiv" style="display:none;">
                     <label asp-for="PreviousAgentId" class="form-label">
                         Previous Agent
@@ -90,7 +92,7 @@
                     </label>
                     <select asp-for="PreviousAgentId" class="form-select">
                         <option value="">-- Select Previous Agent --</option>
-                        @foreach (var agent in ViewBag.AllAgents)  @* ✅ كل الـ agents *@
+                        @foreach (var agent in ViewBag.AllAgents)  
                         {
                             <option value="@agent.Id">@agent.AgentName</option>
                         }
@@ -108,11 +110,11 @@
 @section Scripts {
     <script>
         const lastAgentId = '@ViewBag.LastAgentId';
-        const lastLeaderId = '@ViewBag.LastLeaderId';
+        const suggestedLeaderId = '@ViewBag.SuggestedLeaderId';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (lastLeaderId) {
-                loadAgents(lastLeaderId);
+        document.addEventListener('DOMContentLoaded', function () {
+            if (suggestedLeaderId && suggestedLeaderId !== '') {
+                loadAgents(suggestedLeaderId);
             }
             handleTypeChange();
         });
@@ -133,24 +135,22 @@
                 url: '/SalesAgent/GetByLeader',
                 type: 'GET',
                 data: { leaderId: leaderId },
-                success: function(data) {
+                success: function (data) {
                     $.ajax({
                         url: '/SalesAgent/GetLeaders',
-                        success: function(leaders) {
+                        success: function (leaders) {
                             const leader = leaders.find(l => l.id === leaderId);
                             if (leader) {
-                                const isLast = leader.id === lastAgentId;
                                 agentSelect.innerHTML +=
-                                    `<option value="${leader.id}"
-                                        ${isLast ? '' : ''}>
-                                        ${leader.agentName} (Leader)
-                                    </option>`;
+                                    `<option value="${leader.id}">
+                                            ${leader.agentName} (Leader)
+                                        </option>`;
                             }
-                            data.forEach(function(agent) {
+                            data.forEach(function (agent) {
                                 agentSelect.innerHTML +=
                                     `<option value="${agent.id}">
-                                        ${agent.agentName}
-                                    </option>`;
+                                            ${agent.agentName}
+                                        </option>`;
                             });
 
                             if (lastAgentId) {

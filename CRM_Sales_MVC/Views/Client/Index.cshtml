@@ -5,8 +5,28 @@
     int pageSize = 10;
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 1;
+    var nextTeam = ViewBag.NextTeamInfo as CRM_Sales_Application.DTOs.NextTeamResultDto;
 }
-
+<!-- Sequence Alert -->
+@if (nextTeam != null && nextTeam.HasData)
+{
+    <div class="sequence-alert">
+        <div class="sequence-alert-icon">
+            <i class="bi bi-shuffle"></i>
+        </div>
+        <div class="sequence-alert-text">
+            <strong>Next Walk-in Turn:</strong>
+            Team <span class="sequence-highlight">@nextTeam.NextTeamName</span>
+            in <span class="sequence-highlight">@nextTeam.NextFloor</span>
+            @if (nextTeam.LastTeamName != null)
+            {
+                <span class="sequence-sub">
+                    (Last client went to @nextTeam.LastTeamName - @nextTeam.LastFloor)
+                </span>
+            }
+        </div>
+    </div>
+}
 <div class="content-card">
     <div class="content-card-header">
         <span class="content-card-title">
