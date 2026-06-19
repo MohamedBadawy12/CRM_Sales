@@ -34,12 +34,12 @@ namespace CRM_Sales_MVC
             {
                 options.LoginPath = "/Auth/Login";
                 options.AccessDeniedPath = "/Auth/Login";
-                options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
 
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromHours(8);
+                options.IdleTimeout = TimeSpan.FromDays(30);
                 options.Cookie.HttpOnly = true;
             });
 
