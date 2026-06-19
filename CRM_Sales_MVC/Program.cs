@@ -3,12 +3,16 @@ using CRM_Sales_Core.Entites;
 using CRM_Sales_Infrastructure.Data;
 using CRM_Sales_Infrastructure.Persistence.Extensions;
 using Microsoft.AspNetCore.Identity;
+using OfficeOpenXml;
+using QuestPDF.Infrastructure;
 namespace CRM_Sales_MVC
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
+            ExcelPackage.License.SetNonCommercialPersonal("TMG");
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
