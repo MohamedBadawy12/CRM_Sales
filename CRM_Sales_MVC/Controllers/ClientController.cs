@@ -3,6 +3,7 @@ using CRM_Sales_Application.CQRS.Clients.Queries;
 using CRM_Sales_Application.CQRS.Projects.Queries;
 using CRM_Sales_Application.CQRS.SalesAgents.Queries;
 using CRM_Sales_Application.DTOs;
+using CRM_Sales_Application.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,12 @@ namespace CRM_Sales_MVC.Controllers
     public class ClientController : Controller
     {
         private readonly IMediator _mediator;
+        private readonly IClientExportService _exportService;
 
-        public ClientController(IMediator mediator)
+        public ClientController(IMediator mediator, IClientExportService exportService)
         {
             _mediator = mediator;
+            _exportService = exportService;
         }
         public async Task<IActionResult> Index(
             string type = "All",
@@ -25,7 +28,7 @@ namespace CRM_Sales_MVC.Controllers
             int? year = null,
             int page = 1)
         {
-            int pageSize = 10;
+            int pageSize = 20;
 
             var allClients = await _mediator.Send(new GetAllClientsQuery());
             var allList = allClients.ToList();
@@ -193,6 +196,44 @@ namespace CRM_Sales_MVC.Controllers
             await _mediator.Send(new DeleteClientCommand(id));
             TempData["Success"] = "Client deleted successfully!";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportExcel(string ids, string type = "All",
+             string search = "", int? month = null, int? year = null)
+        {
+            var clients = await _mediator.Send(
+                new GetClientsForExportQuery(ids, type, search, month, year));
+
+            var bytes = _exportService.ExportToExcel(clients);
+            string fileName = $"Clients_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(bytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportPdf(string ids, string type = "All",
+              string search = "", int? month = null, int? year = null)
+        {
+            var clients = await _mediator.Send(
+                new GetClientsForExportQuery(ids, type, search, month, year));
+
+            var bytes = _exportService.ExportToPdf(clients);
+            string fileName = $"Clients_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+            return File(bytes, "application/pdf", fileName);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PrintView(string ids, string type = "All",
+             string search = "", int? month = null, int? year = null)
+        {
+            var clients = await _mediator.Send(
+                new GetClientsForExportQuery(ids, type, search, month, year));
+
+            return View(clients);
         }
     }
 }

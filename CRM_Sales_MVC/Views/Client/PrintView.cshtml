@@ -1,0 +1,170 @@
+﻿@model IEnumerable<CRM_Sales_Application.DTOs.ClientDto>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Print Clients</title>
+    <style>
+        * {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            padding: 30px;
+        }
+
+        h2 {
+            color: #1a73e8;
+            margin-bottom: 5px;
+        }
+
+        .meta {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #1a73e8;
+            color: white;
+        }
+            /* توزيع عرض الأعمدة بشكل متناسق بعد حذف Previous Agent */
+            th:nth-child(1), td:nth-child(1) {
+                width: 5%;
+                text-align: center;
+            }
+
+            th:nth-child(2), td:nth-child(2) {
+                width: 22%;
+            }
+
+            th:nth-child(3), td:nth-child(3) {
+                width: 15%;
+            }
+
+            th:nth-child(4), td:nth-child(4) {
+                width: 18%;
+            }
+
+            th:nth-child(5), td:nth-child(5) {
+                width: 15%;
+            }
+
+            th:nth-child(6), td:nth-child(6) {
+                width: 15%;
+            }
+
+            th:nth-child(7), td:nth-child(7) {
+                width: 10%;
+            }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            display: inline-block;
+        }
+
+        .walk {
+            background: #e6f7ec;
+            color: #34c759;
+        }
+
+        .follow {
+            background: #fff3e0;
+            color: #ff9500;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+
+        .print-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="window.print()">
+        🖨️ Print Now
+    </button>
+    <h2>Clients Report</h2>
+    <div class="meta">
+        Generated on @DateTime.Now.ToString("dd/MM/yyyy HH:mm") — @Model.Count() records
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Client Name</th>
+                <th>Phone</th>
+                <th>Project</th>
+                <th>Type</th>
+                <th>Sales Agent</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int i = 1;
+            }
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@(i++)</td>
+                    <td>@c.ClientName</td>
+                    <td>@c.Phone</td>
+                    <td>@c.ProjectName</td>
+                    <td>
+                        @if (c.Type == "Walk")
+                        {
+                            <span class="badge walk">Walk-in</span>
+                        }
+                        else
+                        {
+                            <span class="badge follow">Follow-up</span>
+                        }
+                    </td>
+                    <td>@c.AgentName</td>
+                    <td>@c.CreatedAt.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>
