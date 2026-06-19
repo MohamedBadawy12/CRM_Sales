@@ -18,14 +18,16 @@ namespace CRM_Sales_MVC.Controllers
         {
             var allClients = await _mediator.Send(new GetAllClientsQuery());
             var allProjects = await _mediator.Send(new GetAllProjectsQuery());
+            var nextTeamInfo = await _mediator.Send(new GetNextTeamInSequenceQuery());
 
-            var today = DateTime.UtcNow.Date;
+            var today = DateTime.Now.Date;
             var clientsList = allClients.ToList();
 
             ViewBag.TotalClients = allClients.Count();
             ViewBag.WalkClients = allClients.Count(c => c.Type == "Walk");
             ViewBag.FollowClients = allClients.Count(c => c.Type == "Follow");
             ViewBag.TotalProjects = allProjects.Count();
+            ViewBag.NextTeamInfo = nextTeamInfo;
 
             ViewBag.TodayWalk = clientsList
                 .Count(c => c.Type == "Walk" && c.CreatedAt.Date == today);
