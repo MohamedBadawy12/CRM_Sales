@@ -19,7 +19,7 @@ namespace CRM_Sales_MVC.Controllers
         }
         public async Task<IActionResult> Index(string search = "", int page = 1)
         {
-            int pageSize = 8;
+            int pageSize = 10;
 
             var allAgents = await _mediator.Send(new GetAllSalesAgentsQuery());
             var agentsList = allAgents.ToList();
