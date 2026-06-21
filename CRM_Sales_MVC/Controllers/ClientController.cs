@@ -4,6 +4,7 @@ using CRM_Sales_Application.CQRS.Projects.Queries;
 using CRM_Sales_Application.CQRS.SalesAgents.Queries;
 using CRM_Sales_Application.DTOs;
 using CRM_Sales_Application.Interfaces;
+using CRM_Sales_Application.Results;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,18 +23,27 @@ namespace CRM_Sales_MVC.Controllers
             _exportService = exportService;
         }
         public async Task<IActionResult> Index(
-            string type = "All",
-            string search = "",
-            int? month = null,
-            int? year = null,
-            int page = 1)
+            string type = "All", string search = "",
+            int? month = null, int? year = null, int page = 1)
+        {
+            var result = await GetFilteredClients(type, search, month, year, page);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ClientsTablePartial", result.Clients);
+            }
+
+            return View(result.Clients);
+        }
+
+        private async Task<ClientIndexResult> GetFilteredClients(
+            string type, string search, int? month, int? year, int page)
         {
             int pageSize = 20;
 
             var allClients = await _mediator.Send(new GetAllClientsQuery());
             var allList = allClients.ToList();
 
-            // Filter by type
             var filtered = type switch
             {
                 "Walk" => allList.Where(c => c.Type == "Walk"),
@@ -41,32 +51,21 @@ namespace CRM_Sales_MVC.Controllers
                 _ => allList.AsEnumerable()
             };
 
-            // Text Search
             if (!string.IsNullOrEmpty(search))
             {
                 filtered = filtered.Where(c =>
                     c.ClientName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     c.Phone.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    (c.ProjectName != null &&
-                     c.ProjectName.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                    (c.AgentName != null &&
-                     c.AgentName.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    (c.ProjectName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (c.AgentName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
                 );
             }
 
-            // Month Filter
-            if (month.HasValue)
-                filtered = filtered.Where(c => c.CreatedAt.Month == month.Value);
-
-            // Year Filter
-            if (year.HasValue)
-                filtered = filtered.Where(c => c.CreatedAt.Year == year.Value);
+            if (month.HasValue) filtered = filtered.Where(c => c.CreatedAt.Month == month.Value);
+            if (year.HasValue) filtered = filtered.Where(c => c.CreatedAt.Year == year.Value);
 
             var filteredList = filtered.OrderByDescending(c => c.CreatedAt).ToList();
 
-            var nextTeamInfo = await _mediator.Send(new GetNextTeamInSequenceQuery());
-
-            // Pagination
             int totalCount = filteredList.Count;
             int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             var paged = filteredList.Skip((page - 1) * pageSize).Take(pageSize);
@@ -80,10 +79,13 @@ namespace CRM_Sales_MVC.Controllers
             ViewBag.TotalAll = allList.Count;
             ViewBag.TotalWalk = allList.Count(c => c.Type == "Walk");
             ViewBag.TotalFollow = allList.Count(c => c.Type == "Follow");
+
+            var nextTeamInfo = await _mediator.Send(new GetNextTeamInSequenceQuery());
             ViewBag.NextTeamInfo = nextTeamInfo;
 
-            return View(paged);
+            return new ClientIndexResult { Clients = paged };
         }
+
 
         public async Task<IActionResult> Create()
         {
@@ -194,8 +196,92 @@ namespace CRM_Sales_MVC.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _mediator.Send(new DeleteClientCommand(id));
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Ok();
+            }
+
             TempData["Success"] = "Client deleted successfully!";
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Deleted()
+        {
+            var deletedClients = await _mediator.Send(new GetDeletedClientsQuery());
+            return View(deletedClients);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(Guid id)
+        {
+            await _mediator.Send(new RestoreClientCommand(id));
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Ok();
+
+            TempData["Success"] = "Client restored successfully!";
+            return RedirectToAction(nameof(Deleted));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreSelected(string ids)
+        {
+            if (!string.IsNullOrEmpty(ids))
+            {
+                var idList = ids.Split(',')
+                    .Where(x => Guid.TryParse(x, out _))
+                    .Select(Guid.Parse);
+
+                foreach (var id in idList)
+                {
+                    await _mediator.Send(new RestoreClientCommand(id));
+                }
+            }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Ok();
+
+            TempData["Success"] = "Selected clients restored successfully!";
+            return RedirectToAction(nameof(Deleted));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PermanentDelete(Guid id)
+        {
+            await _mediator.Send(new HardDeleteClientCommand(id));
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Ok();
+
+            TempData["Success"] = "Client permanently deleted!";
+            return RedirectToAction(nameof(Deleted));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PermanentDeleteSelected(string ids)
+        {
+            if (!string.IsNullOrEmpty(ids))
+            {
+                var idList = ids.Split(',')
+                    .Where(x => Guid.TryParse(x, out _))
+                    .Select(Guid.Parse);
+
+                foreach (var id in idList)
+                {
+                    await _mediator.Send(new HardDeleteClientCommand(id));
+                }
+            }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Ok();
+
+            TempData["Success"] = "Selected clients permanently deleted!";
+            return RedirectToAction(nameof(Deleted));
         }
 
         [HttpPost]
