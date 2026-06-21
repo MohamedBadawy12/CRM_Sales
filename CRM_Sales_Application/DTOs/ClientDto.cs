@@ -13,6 +13,7 @@
         public Guid? PreviousAgentId { get; set; }
         public string? PreviousAgentName { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
     public class CreateClientDto
     {
