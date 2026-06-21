@@ -19,28 +19,36 @@ namespace CRM_Sales_MVC.Controllers
         }
         public async Task<IActionResult> Index(string search = "", int page = 1)
         {
+            var result = await GetFilteredAgents(search, page);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_SalesAgentsTablePartial", result);
+            }
+
+            return View(result);
+        }
+
+        private async Task<IEnumerable<SalesAgentDto>> GetFilteredAgents(string search, int page)
+        {
             int pageSize = 10;
 
             var allAgents = await _mediator.Send(new GetAllSalesAgentsQuery());
             var agentsList = allAgents.ToList();
 
-            // Search
             var filtered = agentsList.AsEnumerable();
             if (!string.IsNullOrEmpty(search))
             {
                 filtered = agentsList.Where(a =>
                     a.AgentName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    (a.TeamName != null &&
-                     a.TeamName.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                    (a.LeaderName != null &&
-                     a.LeaderName.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                    (a.TeamName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (a.LeaderName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
                     a.Role.Contains(search, StringComparison.OrdinalIgnoreCase)
                 );
             }
 
             var filteredList = filtered.OrderByDescending(a => a.CreatedAt).ToList();
 
-            // Pagination
             int totalCount = filteredList.Count;
             int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             var paged = filteredList.Skip((page - 1) * pageSize).Take(pageSize);
@@ -50,7 +58,7 @@ namespace CRM_Sales_MVC.Controllers
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalCount = totalCount;
 
-            return View(paged);
+            return paged;
         }
 
         public async Task<IActionResult> Create()
@@ -127,11 +135,16 @@ namespace CRM_Sales_MVC.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _mediator.Send(new DeleteSalesAgentCommand(id));
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Ok();
+            }
+
             TempData["Success"] = "Sales Agent deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 
-        // AJAX - Get Leaders
         [HttpGet]
         public async Task<IActionResult> GetLeaders()
         {
@@ -144,7 +157,6 @@ namespace CRM_Sales_MVC.Controllers
             return Json(result);
         }
 
-        // AJAX - Get Agents By Leader
         [HttpGet]
         public async Task<IActionResult> GetByLeader(Guid leaderId)
         {
