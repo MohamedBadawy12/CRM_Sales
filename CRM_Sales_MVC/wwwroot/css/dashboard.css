@@ -327,6 +327,8 @@ body {
     background: #fafafa;
 }
 
+
+
 /* ===== Badges ===== */
 .badge-walk {
     background: rgba(52,199,89,0.15);
@@ -534,25 +536,68 @@ body {
     border-color: var(--accent);
 }
 
-/* ===== Mobile ===== */
+/* ===== Mobile Table Optimization ===== */
 @media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
     }
-        /* ✅ شمال */
-        .sidebar.show {
-            transform: translateX(0);
+
+    .table {
+        font-size: 12.5px;
+        min-width: 600px; /* يضمن إن الجدول ميتزنقش، ويعمل scroll لو لازم */
+    }
+
+        .table th {
+            font-size: 11px;
+            padding: 10px 8px;
+            white-space: nowrap;
         }
 
-    .topbar {
-        left: 0;
+        .table td {
+            padding: 10px 8px;
+            white-space: nowrap;
+        }
+
+            /* الاسم يفضل واضح ومش متقطع */
+            .table td strong {
+                font-size: 13px;
+            }
+
+    /* الـ Badges تتصغر شوية */
+    .badge-walk, .badge-follow, .badge-leader, .badge-agent, .badge-floor {
+        font-size: 10.5px;
+        padding: 3px 8px;
+        white-space: nowrap;
     }
 
-    .main-content {
-        margin-left: 0;
+    /* أزرار Edit/Delete تتصغر وتتلاصق بشكل أنضف */
+    .btn-edit, .btn-delete {
+        padding: 4px 8px;
+        font-size: 11px;
     }
 
-    .topbar-username {
-        display: none;
+        .btn-edit i, .btn-delete i {
+            font-size: 11px;
+        }
+
+    /* خلي الـ Checkbox والـ # مضغوطين أكتر يوفروا مساحة */
+    .table th:first-child, .table td:first-child {
+        width: 30px;
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+}
+
+/* ===== Extra Small Screens (موبايل صغير جداً) ===== */
+@media (max-width: 400px) {
+    .table {
+        font-size: 11.5px;
+        min-width: 560px;
+    }
+
+    .btn-edit span, .btn-delete span {
+        display: none; /* اخفي النص واسيب الأيقونة بس لو احتجنا */
     }
 }
