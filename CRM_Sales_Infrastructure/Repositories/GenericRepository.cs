@@ -22,8 +22,14 @@ namespace CRM_Sales_Infrastructure.Repositories
         public virtual async Task<IEnumerable<T>> GetAllWithIncludesAsync()
             => await _dbSet.Where(x => !x.IsDeleted).ToListAsync();
 
+        public virtual async Task<IEnumerable<T>> GetAllDeletedAsync()
+           => await _dbSet.Where(x => x.IsDeleted).AsNoTracking().ToListAsync();
+
         public async Task<T?> GetByIdAsync(Guid id)
             => await _dbSet.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+
+        public async Task<T?> GetByIdIncludingDeletedAsync(Guid id)
+            => await _dbSet.FirstOrDefaultAsync(x => x.Id == id);
 
         public async Task AddAsync(T entity)
             => await _dbSet.AddAsync(entity);
@@ -38,7 +44,21 @@ namespace CRM_Sales_Infrastructure.Repositories
         {
             var entity = await GetByIdAsync(id);
             if (entity != null)
-                entity.SoftDelete(); // Soft Delete مش بيمسح من DB
+                entity.SoftDelete();
+        }
+
+        public async Task RestoreAsync(Guid id)
+        {
+            var entity = await _dbSet.FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted);
+            if (entity != null)
+                entity.Restore();
+        }
+
+        public async Task HardDeleteAsync(Guid id)
+        {
+            var entity = await _dbSet.FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted);
+            if (entity != null)
+                _dbSet.Remove(entity);
         }
     }
 }
