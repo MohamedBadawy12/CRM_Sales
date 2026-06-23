@@ -47,7 +47,7 @@ namespace CRM_Sales_MVC.Controllers
         public IActionResult Register()
         {
             if (User.Identity.IsAuthenticated)
-                return RedirectToAction("Index", "Dashboard");
+                return RedirectToAction("Login", "Auth");
             return View();
         }
 
@@ -70,7 +70,7 @@ namespace CRM_Sales_MVC.Controllers
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
-                return RedirectToAction("Index", "Dashboard");
+                return RedirectToAction("Login", "Auth");
             }
 
             foreach (var error in result.Errors)
