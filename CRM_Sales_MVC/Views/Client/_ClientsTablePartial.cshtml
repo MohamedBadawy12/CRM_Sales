@@ -16,7 +16,7 @@
                 <th>Project</th>
                 <th>Type</th>
                 <th>Sales Agent</th>
-                <th>Previous Agent</th>
+              @*   <th>Previous Agent</th> *@
                 <th>Date</th>
                 <th>Actions</th>
             </tr>
@@ -54,7 +54,7 @@
                         }
                     </td>
                     <td>@client.AgentName</td>
-                    <td>@(client.PreviousAgentName ?? "-")</td>
+               @*      <td>@(client.PreviousAgentName ?? "-")</td> *@
                     <td>@client.CreatedAt.ToString("dd/MM/yyyy")</td>
                     <td>
                         <a href="/Client/Edit/@client.Id" class="btn-edit me-1">

@@ -47,11 +47,13 @@ body {
     justify-content: center;
     flex-shrink: 0;
 }
+
     .sidebar-logo-icon img {
         width: 100%;
         height: 100%;
         object-fit: contain;
     }
+
 .sidebar-logo-text {
     color: white;
     font-weight: 700;
@@ -110,6 +112,22 @@ body {
     border-top: 1px solid rgba(255,255,255,0.05);
 }
 
+/* ===== Sidebar Overlay (mobile only) ===== */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
 /* ===== Topbar ===== */
 .topbar {
     height: var(--topbar-height);
@@ -118,7 +136,7 @@ body {
     top: 0;
     left: var(--sidebar-width); /* ✅ بعد الـ sidebar */
     right: 0;
-    z-index: 999;
+    z-index: 998;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -327,8 +345,6 @@ body {
     background: #fafafa;
 }
 
-
-
 /* ===== Badges ===== */
 .badge-walk {
     background: rgba(52,199,89,0.15);
@@ -498,7 +514,6 @@ body {
         box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
     }
 
-    /* Highlight suggested option (works in most browsers for the selected default) */
     .form-select option:checked {
         font-weight: 600;
         color: var(--accent);
@@ -536,8 +551,41 @@ body {
     border-color: var(--accent);
 }
 
-/* ===== Mobile Table Optimization ===== */
+/* =====================================================
+   ===== MOBILE RESPONSIVE (max-width: 768px) =====
+   ===================================================== */
 @media (max-width: 768px) {
+
+    /* ✅ Sidebar مخفي بالكامل برا الشاشة، ويظهر بس لما نضغط على الزرار */
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: 1001;
+    }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+    /* ✅ Topbar ياخد عرض الشاشة كله لما الـ sidebar مخفي */
+    .topbar {
+        left: 0;
+    }
+
+    /* ✅ المحتوى ياخد عرض الشاشة كله */
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .topbar {
+        padding: 0 15px;
+    }
+
+    .topbar-username {
+        display: none;
+    }
+
+    /* ===== Table Optimization on Mobile ===== */
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -546,7 +594,7 @@ body {
 
     .table {
         font-size: 12.5px;
-        min-width: 600px; /* يضمن إن الجدول ميتزنقش، ويعمل scroll لو لازم */
+        min-width: 600px;
     }
 
         .table th {
@@ -560,19 +608,16 @@ body {
             white-space: nowrap;
         }
 
-            /* الاسم يفضل واضح ومش متقطع */
             .table td strong {
                 font-size: 13px;
             }
 
-    /* الـ Badges تتصغر شوية */
     .badge-walk, .badge-follow, .badge-leader, .badge-agent, .badge-floor {
         font-size: 10.5px;
         padding: 3px 8px;
         white-space: nowrap;
     }
 
-    /* أزرار Edit/Delete تتصغر وتتلاصق بشكل أنضف */
     .btn-edit, .btn-delete {
         padding: 4px 8px;
         font-size: 11px;
@@ -582,7 +627,6 @@ body {
             font-size: 11px;
         }
 
-    /* خلي الـ Checkbox والـ # مضغوطين أكتر يوفروا مساحة */
     .table th:first-child, .table td:first-child {
         width: 30px;
         padding-left: 6px;
@@ -590,7 +634,7 @@ body {
     }
 }
 
-/* ===== Extra Small Screens (موبايل صغير جداً) ===== */
+/* ===== Extra Small Screens ===== */
 @media (max-width: 400px) {
     .table {
         font-size: 11.5px;
@@ -598,6 +642,6 @@ body {
     }
 
     .btn-edit span, .btn-delete span {
-        display: none; /* اخفي النص واسيب الأيقونة بس لو احتجنا */
+        display: none;
     }
 }

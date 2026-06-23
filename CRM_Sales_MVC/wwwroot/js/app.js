@@ -38,3 +38,6 @@ function getAgentsByLeader(leaderId, targetDropdownId) {
         }
     });
 }
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('show');
+}

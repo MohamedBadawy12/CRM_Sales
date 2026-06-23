@@ -64,6 +64,7 @@ namespace CRM_Sales_MVC
             app.UseSession();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
